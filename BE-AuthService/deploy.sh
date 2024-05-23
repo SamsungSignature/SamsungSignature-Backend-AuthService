@@ -1,0 +1,26 @@
+# DOCKER ENV
+
+export AUTH_SERVICE_NAME="be-auth"
+export AUTH_SERVICE_IMAGE_NAME="auth-service"
+export AUTH_SERVICE_IMAGE_VERSION="0.0.1"
+export NETWORK_NAME="bridge-signature"
+
+# DOCKER IMAGE UPDATE
+
+if docker image inspect $AUTH_SERVICE_IMAGE_NAME:$AUTH_SERVICE_IMAGE_VERSION &> /dev/null; then
+    docker image rm -f $AUTH_SERVICE_IMAGE_NAME:$AUTH_SERVICE_IMAGE_VERSION
+fi
+
+docker build -t $AUTH_SERVICE_IMAGE_NAME:$AUTH_SERVICE_IMAGE_VERSION .
+
+# DOCKER SERVICE RUN
+
+if [ "$(docker ps -aq -f name=$AUTH_SERVICE_NAME)" ]; then
+    docker rm -f $AUTH_SERVICE_NAME
+fi
+
+docker run -d \
+--network $NETWORK_NAME \
+--name $AUTH_SERVICE_NAME \
+-p $AUTH_SERVICE_PORT:$AUTH_SERVICE_PORT \
+$AUTH_SERVICE_IMAGE_NAME:$AUTH_SERVICE_IMAGE_VERSION
